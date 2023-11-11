@@ -62,6 +62,7 @@ const Product = require('./product');
 const app = express();
 
 app.use(express.json());
+const multer = require('multer');
 // app.post('/create', async (req, resp) => {
 // 	let data = new Product(req.body);
 // 	const result = await data.save();
@@ -87,13 +88,30 @@ app.use(express.json());
 
 //   search by single and multiple
 
-app.get('/search/:key', async (req, resp) => {
-	let data = await Product.find({
-		$or: [
-			{ name: { $regex: req.params.key } },
-			{ brand: { $regex: req.params.key } },
-		],
-	});
-	resp.send(data);
+// app.get('/search/:key', async (req, resp) => {
+// 	let data = await Product.find({
+// 		$or: [
+// 			{ name: { $regex: req.params.key } },
+// 			{ brand: { $regex: req.params.key } },
+// 		],
+// 	});
+// 	resp.send(data);
+// });
+
+const upload = multer({
+	storage: multer.diskStorage({
+		destination: function (req, file, cb) {
+			cb(null, 'uploads');
+		},
+		filename: function (req, file, cb) {
+			cb(null, file.fieldname + '-' + Date.now() + '.png');
+		},
+	}),
+}).single('user_file');
+
+app.post('/upload', upload, (req, res) => {
+	res.send('file upload');
 });
-app.listen(5000);
+app.listen(5000, () => {
+	console.log('server is running');
+});
